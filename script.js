@@ -2,31 +2,44 @@ $(document).ready(function(){
 	
 	let input = [];
 	let num = [];
+	let inMod;
+	let inputOn = false;
 	
 	const calculator = {
+		reset(){
+			for(let i = 0; i<input.length;i++){
+				input[i] = input[i].replace('[', '');
+				input[i] = input[i].replace(']', '');
+			}
+		},
+		selectNum(){
+			input[inMod] = '[' + input[inMod] + ']';
+			inMod--;
+			if(inMod < 0){
+				this.initInput();
+			}
+		},
+		initInput(){
+			inputOn = true;
+			inMod = input.length-1;
+		},
 		showInput(key){
-			if(key != '=' && key != 'In'){
-				$('#screen').append(key);
-			}else if(key === 'In'){
+			if(key === 'In' || key === 'L'){
 				$('#screen').html(input);
-			}else{
+			}else if(key != '=' && key != 'In' && key != 'L' && inputOn === false){
+				$('#screen').append(key);
+			}else if(key != '=' && key != 'In' && key != 'L' && inputOn === true){
+				$('#screen').html(input);
+			}else {
 				$('#screen').html(this.result(input));
 			}
 		},
 		saveInput(key){
 			 if(key === '+' || key === '-' || key === '/' || key === '*'){
-				 input.push(num.join(''));
 				 input.push(key);
-				 num = [];
-			 }else if(key === '='){
-				 input.push(num.join(''));
-				 num = [];
-			 }else if(key != 'In'){
-				 num.push(key);
+			 }else if(key != "="){
+				 input.push(key);
 			 }
-		},
-		precedence(input){
-			
 		},
 		result(input){
 			let anwser = 0;
@@ -57,8 +70,16 @@ $(document).ready(function(){
 	//get value of key in string format
 	$('.c-keys').click(function(){
 		const key = this.id.replace('c-key', '');
-		calculator.saveInput(key);
+		if(key === 'In'){
+			calculator.initInput();
+		}else if(key === 'L'){
+			calculator.selectNum();
+		}else{
+			calculator.saveInput(key);
+			calculator.result(key);
+		}
 		calculator.showInput(key);
+		calculator.reset();
 	});
 	
 });
